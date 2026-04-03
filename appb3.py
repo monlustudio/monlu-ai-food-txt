@@ -57,7 +57,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- 3. OpenAI API 設定 ---
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 # --- 4. 密碼驗證 ---
 if "auth_v33" not in st.session_state:
