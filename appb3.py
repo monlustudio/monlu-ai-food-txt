@@ -7,11 +7,9 @@ st.set_page_config(page_title="夢廬 | AI 視覺導演", layout="wide")
 # --- 2. 經典莫蘭迪墨綠古銅配色 CSS ---
 st.markdown("""
     <style>
-    /* 全域背景：莫蘭迪墨綠色 */
     .stApp { background-color: #1E2A23; color: #F1F3F2; }
     h1, h2, h3, p, span, label { color: #F1F3F2 !important; }
     
-    /* 琥珀古銅色按鈕：琥珀底 + 白色字 */
     div.stButton > button {
         background-color: #C5A47E !important;
         color: #FFFFFF !important;
@@ -28,7 +26,6 @@ st.markdown("""
         transform: translateY(-2px) !important;
     }
 
-    /* 輸入框與滑桿樣式 */
     .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div, .stMultiSelect>div>div>div {
         background-color: #26362E !important; 
         color: #F1F3F2 !important;
@@ -37,7 +34,6 @@ st.markdown("""
     ::placeholder { color: #8A9A91 !important; }
     .stSlider > div > div > div > div { background-color: #C5A47E !important; }
 
-    /* 偽裝 st.code：純白底、純黑字、不分級 */
     .stCodeBlock {
         background-color: #FFFFFF !important;
         border: 3px solid #C5A47E !important;
@@ -51,13 +47,17 @@ st.markdown("""
         font-weight: normal !important;
         white-space: pre-wrap !important;
     }
-    /* 修正複製按鈕顏色 */
     .stCodeBlock button { color: #000000 !important; background-color: rgba(0,0,0,0.05) !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. OpenAI API 設定 ---
-client = OpenAI(api_key="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")
+# --- 3. 安全性 API 設定 (從 Secrets 讀取) ---
+# 重要：請看下方「如何設定 Secrets」教學
+try:
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+except Exception as e:
+    st.error("🚨 找不到 API Key 設定。請確保已在 Secrets 中設定 'OPENAI_API_KEY'。")
+    st.stop()
 
 # --- 4. 密碼驗證 ---
 if "auth_v33" not in st.session_state:
@@ -74,8 +74,8 @@ if "auth_v33" not in st.session_state:
     st.stop()
 
 # --- 5. 主程式介面 ---
-st.title("🎬 夢廬：AI 視覺導演助手 (V3.3)")
-st.caption("OpenAI 引擎已驅動。琥珀按鈕與純白報告框準備就緒。")
+st.title("🎬 夢廬：AI 視覺導演助手 (V3.4)")
+st.caption("OpenAI 引擎已驅動。已啟用 GitHub 安全防護模式。")
 st.markdown("---")
 
 with st.form("vision_form"):
@@ -140,18 +140,13 @@ if submit:
                 ----------
                 """
 
-                # 呼叫 OpenAI API
                 response = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[{"role": "user", "content": prompt_content}]
                 )
                 
                 result_text = response.choices[0].message.content
-                
                 st.success("✅ 視覺提案已生成！")
-                st.markdown("### 📋 點擊右上方圖示快速複製報告內容：")
-                
-                # 顯示結果
                 st.code(result_text, language="text")
                 
             except Exception as e:
